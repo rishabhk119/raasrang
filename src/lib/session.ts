@@ -2,6 +2,7 @@ import type { UserRole } from '@/types';
 import {
   PERSISTENT_SESSION_COOKIE,
   PERPETUAL_COOKIE_MAX_AGE,
+  PERSISTENT_SESSIONS_VALID_AFTER,
 } from './session-constants.ts';
 
 
@@ -169,11 +170,16 @@ export async function verifyPersistentSession(
       return null;
     }
 
+    const createdAt = Number(json.createdAt) || 0;
+    if (createdAt < PERSISTENT_SESSIONS_VALID_AFTER) {
+      return null;
+    }
+
     return {
       userId: String(json.userId),
       email: String(json.email),
       role: json.role as UserRole,
-      createdAt: Number(json.createdAt) || 0,
+      createdAt,
     };
   } catch {
     return null;
